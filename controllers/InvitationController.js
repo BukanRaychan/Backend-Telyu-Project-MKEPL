@@ -14,7 +14,7 @@ export const createInvitation = async (req, res) => {
           receiverID: req.body.receiverID,
           projectID: req.body.projectID,
           status : "waiting",
-          message : req.body.message 
+          message : req.body.message
         } 
       }
     )
@@ -39,39 +39,39 @@ export const getAllInvitations = async (req, res) => {
 
 export const getInvitationsByUserID = async (req, res) => {
   try {
-    const reqUserID = req.params.userID
-    const invitation = await Invitation.findAll({
-      where : {
+    const { userID } = req.params;
+    const invitations = await Invitation.findAll({
+      where: {
         [Op.or]: [
-          { senderID: reqUserID },
-          { receiverID: reqUserID }
+          { senderID: userID },
+          { receiverID: userID }
         ]
       },
-      include : [
+      include: [
         {
-          model : Project,
-          attributes : ["title"]
+          model: Project,
+          attributes: ["title"]
         },
         {
-          model : User,
-          as : "sender",
-          attributes : ["firstName", "lastName"],
+          model: User,
+          as: "sender",
+          attributes: ["firstName", "lastName"],
         },
         {
-          model : User,
-          as : "receiver",
-          attributes : ["firstName", "lastName"],
+          model: User,
+          as: "receiver",
+          attributes: ["firstName", "lastName"],
         }
       ],
-      order: [
-        ['status', 'DESC']
-      ]
-    })
-    res.status(200).json(invitation)
+      order: [['status', 'DESC']]
+    });
+    res.status(200).json(invitations);
   } catch (error) {
-    res.status(500).json({message : "failed to get all data"}, error)
+    console.error("Failed to get invitations:", error);
+    res.status(500).json({ message: "Failed to get invitations" });
   }
 }
+
 
 export const InvitationUpdated = async (req, res, next) => {
   try {
